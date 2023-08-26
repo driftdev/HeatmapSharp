@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+      <PackageReference Include="SixLabors.ImageSharp" Version="3.0.1" />
+        <EmbeddedResource Include="Assets/450pxdot.png">
+            <Pack>True</Pack>
+            <PackagePath>450pxdot.png</PackagePath>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Assets/default.png">
+            <Pack>True</Pack>
+            <PackagePath>default.png</PackagePath>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Assets/reveal.png">
+            <Pack>True</Pack>
+            <PackagePath>reveal.png</PackagePath>
+        </EmbeddedResource>
+    </ItemGroup>
+    
+
+</Project>
