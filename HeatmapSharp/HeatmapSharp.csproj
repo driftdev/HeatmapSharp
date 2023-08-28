@@ -23,5 +23,17 @@
         </EmbeddedResource>
     </ItemGroup>
     
+    <PropertyGroup>
+        <PackageId>HeatmapSharp</PackageId>
+        <Version>0.0.1</Version>
+        <Authors>ArkamFahry</Authors>
+        <RepositoryUrl>https://github.com/ArkamFahry/HeatmapSharp</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageProjectUrl>https://github.com/ArkamFahry/HeatmapSharp</PackageProjectUrl>
+        <PackageTags>heatmapping heatmapper image-processing</PackageTags>
+        <Description>
+            An image heatmapping helper built on top of ImageSharp
+        </Description>
+    </PropertyGroup>
 
 </Project>
