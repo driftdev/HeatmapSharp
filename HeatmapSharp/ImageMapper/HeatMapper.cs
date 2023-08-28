@@ -1,6 +1,4 @@
-﻿using System.Resources;
-
-namespace HeatmapSharp.ImageMapper;
+﻿namespace HeatmapSharp.ImageMapper;
 
 public class HeatMapper
 {
@@ -10,8 +8,7 @@ public class HeatMapper
     private readonly int _pointDiameter;
     private readonly float _pointStrength;
     private readonly float _opacity;
-    private readonly string _colors;
-    // private Image<Rgba32> _colorImage;
+    private Rgba32[] _colorMap = null!;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="HeatMapper" /> class.
@@ -25,35 +22,53 @@ public class HeatMapper
         _pointDiameter = pointDiameter;
         _pointStrength = pointStrength;
         _opacity = opacity;
-        _colors =  colors;
+        SetColor(colors);
     }
     
-    // todo implement the color mapping using color images
-    // private void SetColor(string colors)
-    // {
-    //     switch (colors)
-    //     {
-    //         case "default":
-    //         {
-    //             using var defaultPngStream = typeof(HeatMapper).Assembly.GetManifestResourceStream(DefaultPng);
-    //             if (defaultPngStream != null) _colorImage = Image.Load<Rgba32>(defaultPngStream);
-    //             break;
-    //         }
-    //         case "reveal":
-    //         {
-    //             using var revealPngStream = typeof(HeatMapper).Assembly.GetManifestResourceStream(RevealPng);
-    //             if (revealPngStream != null) _colorImage = Image.Load<Rgba32>(revealPngStream);
-    //             break;
-    //         }
-    //         default:
-    //         {
-    //             using var defaultPngStream = typeof(HeatMapper).Assembly.GetManifestResourceStream(DefaultPng);
-    //             if (defaultPngStream != null) _colorImage = Image.Load<Rgba32>(defaultPngStream);
-    //             break;
-    //         }
-    //     }
-    // }
+    private void SetColor(string colors)
+    {
+        Image<Rgba32> colorImage = null!;
+        
+        switch (colors)
+        {
+            case "default":
+            {
+                using var defaultPngStream = typeof(HeatMapper).Assembly.GetManifestResourceStream(DefaultPng);
+                if (defaultPngStream is not null) colorImage = Image.Load<Rgba32>(defaultPngStream);
+                _colorMap = ExtractColorMapFromImage(colorImage);
+                break;
+            }
+            case "reveal":
+            {
+                using var revealPngStream = typeof(HeatMapper).Assembly.GetManifestResourceStream(RevealPng);
+                if (revealPngStream is not null) colorImage = Image.Load<Rgba32>(revealPngStream);
+                _colorMap = ExtractColorMapFromImage(colorImage);
+                break;
+            }
+            default:
+            {
+                using var defaultPngStream = typeof(HeatMapper).Assembly.GetManifestResourceStream(DefaultPng);
+                if (defaultPngStream is not null) colorImage = Image.Load<Rgba32>(defaultPngStream);
+                _colorMap = ExtractColorMapFromImage(colorImage);
+                break;
+            }
+        }
+    }
 
+    private static Rgba32[] ExtractColorMapFromImage(Image<Rgba32> colorImage)
+    {
+        var colorMap = new List<Rgba32>();
+
+        for (var x = 0; x < colorImage.Width; x++)
+        {
+            var pixel = colorImage[x, 0];
+            colorMap.Add(pixel);
+        }
+        
+        return colorMap.ToArray();
+    }
+
+    
     public Image<Rgba32> ImageToHeatMap(Image<Rgba32> image, IEnumerable<(int, int)> points)
     {
         GreyHeatMapper geryMapper = new(_pointDiameter, _pointStrength);
@@ -67,53 +82,20 @@ public class HeatMapper
     
     private Image<Rgba32> ColorHeatMap(Image<L8> greyImage)
     {
-        var colorMap = _colors switch
-        {
-            "default" => GenerateDefaultColorMap(),
-            "reveal" => GenerateRevealColorMap(),
-            _ => GenerateDefaultColorMap()
-        };
-
         var colorHeatMap = new Image<Rgba32>(greyImage.Width, greyImage.Height);
         
-        // todo find a better way to set the color rather than loops
-        // loop through each pixel in the grey heatmap and according to the strength of the points set the color
         for (var y = 0; y < greyImage.Height; y++)
         {
             for (var x = 0; x < greyImage.Width; x++)
             {
                 var pixelValue = greyImage[x, y];
-                var index = (int)Math.Round((colorMap.Length - 1) * (pixelValue.PackedValue / 255.0));
-                var color = colorMap[index];
+                var index = (int)Math.Round((_colorMap.Length - 1) * (pixelValue.PackedValue / 255.0));
+                var color = _colorMap[index];
                 colorHeatMap[x, y] = color;
             }
         }
 
         return colorHeatMap;
-    }
-    
-    private static Rgba32[] GenerateDefaultColorMap()
-    {
-        Rgba32[] colorMap = {
-            new(255, 0, 0, 100),    // Red
-            new(255, 255, 0, 100), // Yellow
-            new(0, 255, 0, 100),   // Green
-            new(0, 255, 255, 100), // Cyan
-            new(0, 0, 255, 100),   // Blue
-            new(255, 255, 255, 0) // transparent
-        };
-    
-        return colorMap;
-    }
-    
-    private static Rgba32[] GenerateRevealColorMap()
-    {
-        Rgba32[] colorMap = {
-            new(0, 0, 255, 100),   // Black
-            new(255, 255, 255, 0) // transparent
-        };
-    
-        return colorMap;
     }
     
     private Image<Rgba32> BlendImage(Image<Rgba32> overlayImage, Image<Rgba32> sourceImage)

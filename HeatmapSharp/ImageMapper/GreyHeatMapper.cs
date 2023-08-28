@@ -8,13 +8,18 @@ public class GreyHeatMapper
     private readonly float _pointStrength;
     private readonly Image<Rgba32>? _pixelDotPng;
     
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="GreyHeatMapper" /> class.
+    /// </summary>
+    /// <param name="pointDiameter">Sets the diameter of the marking dot points (measured in pixels 1 = 1px)</param>
+    /// <param name="pointStrength">Sets the strength of the marking dot points (measured from 0 to 1)</param>
     public GreyHeatMapper(int pointDiameter, float pointStrength)
     {
         _pointDiameter = pointDiameter;
         _pointStrength = pointStrength;
         
         using var pixelDotPngStream = typeof(HeatMapper).Assembly.GetManifestResourceStream(PixelDotPng);
-        if (pixelDotPngStream != null) _pixelDotPng = Image.Load<Rgba32>(pixelDotPngStream);
+        if (pixelDotPngStream is not null) _pixelDotPng = Image.Load<Rgba32>(pixelDotPngStream);
     }
 
     // creates a empty grey heatmap and uses the dot image (450pxdot.png) to map the points
