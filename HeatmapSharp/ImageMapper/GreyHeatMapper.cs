@@ -43,12 +43,16 @@ public class GreyHeatMapper
         {
             var x = point.Item1 - _pointDiameter / 2;
             var y = point.Item2 - _pointDiameter / 2;
-    
-            greyHeatMap.Mutate(h =>
+
+            // if the point is within the image invoke the DrawImage else skip that point
+            if (x >= 0 && x + dot.Width <= greyHeatMap.Width && y >= 0 && y + dot.Height <= greyHeatMap.Height)
             {
-                using var tempDot = dot.Clone();
-                h.DrawImage(tempDot, new Point(x, y), 1f);
-            });
+                greyHeatMap.Mutate(h =>
+                {
+                    using var tempDot = dot.Clone();
+                    h.DrawImage(tempDot, new Point(x, y), 1f);
+                });
+            }
         }
 
         greyHeatMap.Mutate(h => h.Grayscale());
