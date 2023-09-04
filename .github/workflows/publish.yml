@@ -1,4 +1,4 @@
-name: Publish NuGet Package
+name: publish_HeatmapSharp_package
 
 on:
   push:
@@ -6,6 +6,10 @@ on:
       - main
   
   workflow_dispatch: {}
+
+env:
+  PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\output
+  NUGET_SOURCE_URL: 'https://api.nuget.org/v3/index.json'
 
 jobs:
   build:
@@ -23,9 +27,12 @@ jobs:
     - name: Build package
       run: dotnet build -c Release
 
-    - name: Extract package filename
-      id: extract_filename
-      run: echo "::set-output name=package_filename::HeatmapSharp.$(echo ${{ github.event.head_commit.files }} | grep -oP 'HeatmapSharp.\K\d+\.\d+\.\d+').nupkg"
+    - name: Pack Package
+      run: dotnet pack -c Release --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
 
+    - name: Package Version
+      id: version
+      uses: battila7/get-version-action@v2
+    
     - name: Publish package to NuGet.org
-      run: dotnet nuget push ${{ steps.extract_filename.outputs.package_filename }} --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
+      run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_SOURCE_URL }}
