@@ -8,7 +8,7 @@ on:
   workflow_dispatch: {}
 
 env:
-  PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\output
+  PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/output
   NUGET_SOURCE_URL: 'https://api.nuget.org/v3/index.json'
 
 jobs:
@@ -35,4 +35,4 @@ jobs:
       run: dotnet pack -c Release -p:PackageVersion=${{ steps.version.outputs.version-without-v }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
     
     - name: Publish package to NuGet.org
-      run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_SOURCE_URL }}
+      run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_SOURCE_URL }}
