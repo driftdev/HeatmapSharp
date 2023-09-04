@@ -65,3 +65,15 @@ HeatMapper heatMapper = new HeatMapper(50, 0.2f, 0.65f, "default");
 
 Image<Rgba32> heatmap = heatMapper.ImageToHeatMap();
 ```
+
+## Change Log
+
+- v0.0.1
+  - Dependency Update 
+    - used ImageSharp v3.0.1
+
+- v0.0.2
+  - Dependency Update 
+    - ImageSharp update to v3.0.2
+  - Bug Fix
+    - Fixed issue where if a point goes out of bound in an image it raises a exception. Fixed it to omit the point that goes out of bound in the mapping process 
