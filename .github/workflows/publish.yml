@@ -23,9 +23,9 @@ jobs:
     - name: Build package
       run: dotnet build -c Release
 
-    - name: Extract package version
-      id: extract_version
-      run: echo "::set-output name=package_version::$(echo ${{ github.event.head_commit.files }} | grep -oP 'HeatmapSharp.\K\d+\.\d+\.\d+')"
+    - name: Extract package filename
+      id: extract_filename
+      run: echo "::set-output name=package_filename::HeatmapSharp.$(echo ${{ github.event.head_commit.files }} | grep -oP 'HeatmapSharp.\K\d+\.\d+\.\d+').nupkg"
 
     - name: Publish package to NuGet.org
-      run: dotnet nuget push HeatmapSharp.${{ steps.extract_version.outputs.package_version}}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
+      run: dotnet nuget push ${{ steps.extract_filename.outputs.package_filename }} --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
