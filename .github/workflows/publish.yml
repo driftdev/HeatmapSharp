@@ -1,0 +1,31 @@
+name: Publish NuGet Package
+
+on:
+  push:
+    branches:
+      - main
+  
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0'
+
+    - name: Build package
+      run: dotnet build -c Release
+
+    - name: Extract package version
+      id: extract_version
+      run: echo "::set-output name=package_version::$(echo ${{ github.event.head_commit.files }} | grep -oP 'HeatmapSharp.\K\d+\.\d+\.\d+')"
+
+    - name: Publish package to NuGet.org
+      run: dotnet nuget push HeatmapSharp.${{ steps.extract_version.outputs.package_version}}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
