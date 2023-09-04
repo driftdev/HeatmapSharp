@@ -2,8 +2,8 @@ name: publish_HeatmapSharp_package
 
 on:
   push:
-    branches:
-      - main
+    tags:
+     - 'v*'
   
   workflow_dispatch: {}
 
@@ -27,12 +27,12 @@ jobs:
     - name: Build package
       run: dotnet build -c Release
 
-    - name: Pack Package
-      run: dotnet pack -c Release --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
-
     - name: Package Version
       id: version
       uses: battila7/get-version-action@v2
+      
+    - name: Pack Package
+      run: dotnet pack -c Release -p:PackageVersion=${{ steps.version.outputs.version-without-v }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
     
     - name: Publish package to NuGet.org
       run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_SOURCE_URL }}
