@@ -38,7 +38,7 @@ default pointDiameter = 50 which is 50px (1 = 1px)
 
 /* 
 pointStrength is an float from 0-1 marks the strength or opacity of the point
-default pointDiameter 0.2f
+default pointOpacity 0.2f
 */
 
 /* 
@@ -61,7 +61,7 @@ HeatMapper heatMapper = new HeatMapper(50, 0.2f, 0.65f, "default");
 ```c#
 // pass the image and the points to ImageToHeatMap(image, points)
 // image is a Image<Rgba32> type image from ImageSharp
-// points are an IEnumerable<(int, int)> of points
+// points are an IEnumerable<PointModel> of points
 
 Image<Rgba32> heatmap = heatMapper.ImageToHeatMap();
 ```
