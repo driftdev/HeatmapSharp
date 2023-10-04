@@ -1,4 +1,6 @@
-﻿namespace HeatmapSharp.ImageMapper;
+﻿using SixLabors.ImageSharp.Advanced;
+
+namespace HeatmapSharp.ImageMapper;
 
 public class HeatMapper
 {
@@ -83,17 +85,19 @@ public class HeatMapper
     private Image<Rgba32> ColorHeatMap(Image<L8> greyImage)
     {
         var colorHeatMap = new Image<Rgba32>(greyImage.Width, greyImage.Height);
+
+        var localColorMap = _colorMap.ToArray();
         
-        for (var y = 0; y < greyImage.Height; y++)
+        Parallel.For(0, greyImage.Height, y =>
         {
             for (var x = 0; x < greyImage.Width; x++)
             {
                 var pixelValue = greyImage[x, y];
-                var index = (int)Math.Round((_colorMap.Length - 1) * (pixelValue.PackedValue / 255.0));
-                var color = _colorMap[index];
+                var index = (int)Math.Round((localColorMap.Length - 1) * (pixelValue.PackedValue / 255.0));
+                var color = localColorMap[index];
                 colorHeatMap[x, y] = color;
             }
-        }
+        });
 
         return colorHeatMap;
     }
