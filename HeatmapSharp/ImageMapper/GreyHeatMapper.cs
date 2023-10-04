@@ -23,23 +23,16 @@ public class GreyHeatMapper
     }
 
     // creates a empty grey heatmap and uses the dot image (450pxdot.png) to map the points
-    public Image<L8> ImageToGreyHeatMap(int width, int height,IEnumerable<(int, int)> points)
+    public Image<L8> ImageToGreyHeatMap(int width, int height, IEnumerable<(int, int)> points)
     {
-        var greyHeatMap = new Image<L8>(width, height);
-        for (var y = 0; y < greyHeatMap.Height; y++)
-        {
-            for (var x = 0; x < greyHeatMap.Width; x++)
-            {
-                greyHeatMap[x, y] = new L8(byte.MaxValue);
-            }
-        }
+        var greyHeatMap = new Image<L8>(width, height, new L8(byte.MaxValue));
         
         if (_pixelDotPng == null) return greyHeatMap.Clone();
         var dot = _pixelDotPng.Clone();
         dot.Mutate(d => d.Resize(new Size(_pointDiameter, _pointDiameter)));
         dot.Mutate(d => d.Opacity(_pointStrength));
-    
-        foreach (var point in points)
+
+        Parallel.ForEach(points, point =>
         {
             var x = point.Item1 - _pointDiameter / 2;
             var y = point.Item2 - _pointDiameter / 2;
@@ -53,7 +46,7 @@ public class GreyHeatMapper
                     h.DrawImage(tempDot, new Point(x, y), 1f);
                 });
             }
-        }
+        });
 
         greyHeatMap.Mutate(h => h.Grayscale());
         
